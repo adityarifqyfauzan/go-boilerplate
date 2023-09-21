@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package helloworld;
+option go_package = "./app/domain/pb/helloworld";
+
+message HelloWorldRequest {
+    string name = 1;
+}
+
+message WebResponse {
+    int32 code = 1;
+    string message = 2;
+}
+
+service HelloWorldService {
+  rpc SayHello (HelloWorldRequest) returns (WebResponse);
+}

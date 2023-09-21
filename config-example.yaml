@@ -1,0 +1,24 @@
+app:
+  env: development
+  name: go-boilerplate
+  port: 8080
+  grpc:
+    port: 8083
+    http_route_prefix: v1
+
+  request:
+    timeout: 100
+    max_conn: 10
+    vol_threshold: 20
+    sleep_window: 5000
+    err_per_threshold: 50
+
+database:
+  driver: postgres
+  dsn: "host=%s port=%s dbname=%s user=%s password=%s sslmode=%s"
+  dbname:
+  dbuser:
+  dbpass:
+  dbhost:
+  dbport:
+
