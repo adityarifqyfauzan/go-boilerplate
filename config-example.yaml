@@ -21,4 +21,5 @@ database:
   dbpass:
   dbhost:
   dbport:
+  sslmode:
 

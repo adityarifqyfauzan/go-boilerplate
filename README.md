@@ -7,6 +7,7 @@ I made this repository to make it easier for me to start a new project using Go.
 - Web Framework uses Gin Gonic [(Read Documentation)](https://gin-gonic.com/docs)
 - ORM uses GORM [(Read Documentation)](https://gorm.io/docs)
 - Dependency Injection uses Uber Dig [(Read Documentation)](https://pkg.go.dev/go.uber.org/dig)
+- Logging uses Logrus [(Read Documentation)](https://github.com/sirupsen/logrus)
 
 ## Requirements
 
