@@ -1,0 +1,133 @@
+{
+    "annotations": {
+      "list": []
+    },
+    "panels": [
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "id": 1,
+        "title": "HTTP Requests Total",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum by (path) (rate(http_requests_total[1m]))",
+            "legendFormat": "{{path}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "id": 2,
+        "title": "HTTP Request Duration",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le, path))",
+            "legendFormat": "{{path}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "unit": "connections"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 0,
+          "y": 8
+        },
+        "id": 3,
+        "title": "DB Open Connections",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "db_open_connections",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "unit": "connections"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 6,
+          "y": 8
+        },
+        "id": 4,
+        "title": "DB Idle Connections",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "db_idle_connections",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "datasource": null,
+        "fieldConfig": {
+          "defaults": {
+            "unit": "goroutines"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 12,
+          "y": 8
+        },
+        "id": 5,
+        "title": "Goroutines",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "go_routines",
+            "refId": "A"
+          }
+        ]
+      }
+    ],
+    "title": "Go Application Monitoring",
+    "timezone": "browser",
+    "version": 1
+  }
+  

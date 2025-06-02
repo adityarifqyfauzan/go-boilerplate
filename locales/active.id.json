@@ -1,0 +1,34 @@
+{
+    "hello": "Halo {{.Name}}",
+    "plural.message": {
+        "one": "Ada {{.Count}} pesan",
+        "other": "Ada {{.Count}} pesan"
+    },
+
+    "error.500": "Terjadi kesalahan, silahkan coba lagi nanti",
+    "error.404": "Halaman tidak ditemukan",
+    "error.403": "Dilarang",
+    "error.401": "Tidak terautentikasi",
+    "error.400": "Permintaan tidak valid",
+    "error.422": "Permintaan tidak valid",
+
+    "validation.required": "{{.Field}} wajib diisi",
+    "validation.email": "{{.Field}} harus berupa alamat email yang valid",
+    "validation.min": "{{.Field}} harus memiliki panjang minimal {{.Param}} karakter",
+    "validation.max": "{{.Field}} harus memiliki panjang maksimal {{.Param}} karakter",
+    "validation.gte": "{{.Field}} harus lebih besar atau sama dengan {{.Param}}",
+    "validation.lte": "{{.Field}} harus lebih kecil atau sama dengan {{.Param}}",
+    "validation.eqfield": "{{.Field}} tidak cocok",
+
+    "fields.name": "Nama",
+    "fields.email": "Email",
+    "fields.password": "Kata Sandi",
+    "fields.age": "Umur",
+
+    "data.created": "Data berhasil dibuat",
+    "data.updated": "Data berhasil diperbarui",
+    "data.deleted": "Data berhasil dihapus",
+    "data.found": "Data ditemukan",
+    "data.notfound": "Data tidak ditemukan",
+    "data.exists": "Data sudah ada"
+}

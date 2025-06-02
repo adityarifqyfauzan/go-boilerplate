@@ -1,0 +1,34 @@
+{
+    "hello": "Hello {{.Name}}",
+    "plural.message": {
+        "one": "There is one message",
+        "other": "There are {{.Count}} messages"
+    },
+
+    "error.500": "Something went wrong, please try again later",
+    "error.404": "Page not found",
+    "error.403": "Forbidden",
+    "error.401": "Unauthorized",
+    "error.400": "Bad request",
+    "error.422": "Unprocessable entity",
+
+    "validation.required": "{{.Field}} is required",
+    "validation.email": "{{.Field}} must be a valid email address",
+    "validation.min": "{{.Field}} must be at least {{.Param}} characters long",
+    "validation.max": "{{.Field}} must be at most {{.Param}} characters long",
+    "validation.gte": "{{.Field}} must be greater than or equal to {{.Param}}",
+    "validation.lte": "{{.Field}} must be less than or equal to {{.Param}}",
+    "validation.eqfield": "{{.Field}} doesn't match",
+
+    "fields.name": "Name",
+    "fields.email": "Email",
+    "fields.password": "Password",
+    "fields.age": "Age",
+
+    "data.created": "Data created",
+    "data.updated": "Data updated",
+    "data.deleted": "Data deleted",
+    "data.found": "Data found",
+    "data.notfound": "Data not found",
+    "data.exists": "Data already exists"
+}

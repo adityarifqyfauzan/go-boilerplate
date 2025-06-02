@@ -1,0 +1,34 @@
+{
+    "hello": "こんにちは、{{.Name}}",
+    "plural.message": {
+        "one": "{{.Count}}件のメッセージ",
+        "other": "{{.Count}}件のメッセージ"
+    },
+
+    "error.500": "エラーが発生しました。後でもう一度お試しください。",
+    "error.404": "ページが見つかりません",
+    "error.403": "アクセスが拒否されました",
+    "error.401": "認証が必要です",
+    "error.400": "無効なリクエストです",
+    "error.422": "無効なリクエストです",
+
+    "validation.required": "{{.Field}}は必須項目です",
+    "validation.email": "{{.Field}}は有効なメールアドレスである必要があります",
+    "validation.min": "{{.Field}}は{{.Param}}文字以上でなければなりません",
+    "validation.max": "{{.Field}}は{{.Param}}文字以下でなければなりません",
+    "validation.gte": "{{.Field}}は{{.Param}}以上でなければなりません",
+    "validation.lte": "{{.Field}}は{{.Param}}以下でなければなりません",
+    "validation.eqfield": "{{.Field}}が一致しません",
+
+    "fields.name": "名前",
+    "fields.email": "メールアドレス",
+    "fields.password": "パスワード",
+    "fields.age": "年齢",
+
+    "data.created": "データが作成されました",
+    "data.updated": "データが更新されました",
+    "data.deleted": "データが削除されました",
+    "data.found": "データが見つかりました",
+    "data.notfound": "データが見つかりませんでした",
+    "data.exists": "データが既に存在しています"
+}
