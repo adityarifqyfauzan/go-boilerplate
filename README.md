@@ -82,8 +82,6 @@ go-boilerplate/
 │   ├── model/              # Data models
 │   ├── module/             # Feature modules
 │   │   ├── authentication/ # Authentication module
-│   │   ├── auth/           # Auth module
-│   │   └── user/           # User management module
 │   ├── repository/         # Data access layer
 │   └── routes/             # Route definitions
 ├── locales/                # Internationalization files
@@ -206,7 +204,6 @@ go run main.go seeder --only UserSeeder
 ```
 
 ### Available Seeders
-- `user.go` - User data seeder
 - `role.go` - Role data seeder
 - `user_status.go` - User status data seeder
 
@@ -317,28 +314,23 @@ docker-compose exec app go run main.go seeder
 go test ./...
 
 # Run specific test
-go test ./internal/module/user
+# (update this to your actual module, e.g. authentication)
+go test ./internal/module/authentication
 
 # Run with coverage
 go test -cover ./...
 ```
 
-## 📝 API Endpoints
+## �� API Endpoints
 
 ### Health Check
 ```bash
 GET /health
 ```
 
-### User Management
-```bash
-GET /v1/user/me          # Get current user
-```
-
 ### Authentication
 ```bash
 POST /v1/authentication/login    # Login
-POST /v1/authentication/logout   # Logout
 ```
 
 ### Internationalization Example
