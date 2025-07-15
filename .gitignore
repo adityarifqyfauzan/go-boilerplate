@@ -1,3 +1,26 @@
-/mysql
-.env
+# MySQL
+mysql/data/
+mysql/conf/custom.cnf
+*.log
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.env    
 .vscode
+main
+*.exe
+
+dbconfig.yml

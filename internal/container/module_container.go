@@ -5,11 +5,9 @@ package container
 import (
 	"go.uber.org/dig"
 
-	"github.com/adityarifqyfauzan/go-boilerplate/internal/module/auth"
-	"github.com/adityarifqyfauzan/go-boilerplate/internal/module/user")
+	"github.com/adityarifqyfauzan/go-boilerplate/internal/module/authentication")
 
 func moduleContainer(container *dig.Container) {
 
-	auth.InitContainer(container)
-	user.InitContainer(container)
+	authentication.InitContainer(container)
 }

@@ -31,12 +31,14 @@ func mongoDB() {
 		defer cancel()
 		Mongo, err = mongo.Connect(clientOption)
 		if err != nil {
-			log.Fatalf("failed to connect to database: %v", err)
+			log.Printf("failed to connect to database: %v", err)
+			return
 		}
 
 		err = Mongo.Ping(ctx, nil)
 		if err != nil {
-			log.Fatalf("failed to ping mongodb: %v", err)
+			log.Printf("failed to ping mongodb: %v", err)
+			return
 		}
 
 		log.Println("connected to mongodb")

@@ -11,6 +11,11 @@ type Config struct {
 }
 
 func New() *Config {
+
+	// Connect to database
+	DB := RelationalDatabase()
+	Mongo := MongoDB()
+
 	return &Config{
 		DB:    DB,
 		Mongo: Mongo,

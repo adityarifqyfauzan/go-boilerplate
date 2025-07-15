@@ -3,7 +3,7 @@ package validator
 import (
 	"testing"
 
-	ii18n "github.com/adityarifqyfauzan/go-boilerplate/pkg/i18n"
+	"github.com/adityarifqyfauzan/go-boilerplate/pkg/translator"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
@@ -13,7 +13,7 @@ func TestValidator(t *testing.T) {
 		Age   int    `validate:"required,gte=18,lte=100"`
 		Email string `validate:"required,email"`
 	}
-	bundle := ii18n.Init("../../locales")
+	bundle := translator.Init("../../locales")
 	if bundle == nil {
 		panic("failed to init i18n")
 	}
@@ -47,7 +47,7 @@ func TestValidatorInID(t *testing.T) {
 		Age   int    `validate:"required,gte=18,lte=100"`
 		Email string `validate:"required,email"`
 	}
-	bundle := ii18n.Init("../../locales")
+	bundle := translator.Init("../../locales")
 	if bundle == nil {
 		panic("failed to init i18n")
 	}
@@ -81,7 +81,7 @@ func TestValidatorInJA(t *testing.T) {
 		Age   int    `validate:"required,gte=18,lte=100"`
 		Email string `validate:"required,email"`
 	}
-	bundle := ii18n.Init("../../locales")
+	bundle := translator.Init("../../locales")
 	if bundle == nil {
 		panic("failed to init i18n")
 	}
@@ -114,7 +114,7 @@ func TestValidatorPasswordConfirmation(t *testing.T) {
 		Password             string `json:"password" validate:"required"`
 		PasswordConfirmation string `json:"password_confirmation" validate:"required,eqfield=Password"`
 	}
-	bundle := ii18n.Init("../../locales")
+	bundle := translator.Init("../../locales")
 	if bundle == nil {
 		panic("failed to init i18n")
 	}

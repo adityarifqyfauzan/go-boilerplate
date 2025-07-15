@@ -7,10 +7,12 @@
 
     "error.500": "Terjadi kesalahan, silahkan coba lagi nanti",
     "error.404": "Halaman tidak ditemukan",
-    "error.403": "Dilarang",
-    "error.401": "Tidak terautentikasi",
+    "error.403": "Akses ditolak",
+    "error.401": "Autentikasi diperlukan",
     "error.400": "Permintaan tidak valid",
-    "error.422": "Permintaan tidak valid",
+    "error.422": "Permintaan tidak dapat diproses",
+
+    "success": "Berhasil",
 
     "validation.required": "{{.Field}} wajib diisi",
     "validation.email": "{{.Field}} harus berupa alamat email yang valid",
@@ -30,5 +32,21 @@
     "data.deleted": "Data berhasil dihapus",
     "data.found": "Data ditemukan",
     "data.notfound": "Data tidak ditemukan",
-    "data.exists": "Data sudah ada"
+    "data.exists": "Data sudah ada",
+
+    "auth.invalid_credentials": "Email atau kata sandi tidak valid",
+    "auth.user_inactive": "Akun pengguna tidak aktif",
+    "auth.failed_generate_tokens": "Gagal menghasilkan token autentikasi",
+    "auth.failed_generate_refresh_token": "Gagal menghasilkan refresh token",
+    "auth.login_successful": "Login berhasil",
+    "auth.user_already_exists": "Pengguna dengan email ini sudah ada",
+    "auth.failed_hash_password": "Gagal mengenkripsi kata sandi",
+    "auth.failed_create_user": "Gagal membuat akun pengguna",
+    "auth.registration_successful": "Registrasi berhasil",
+    "auth.invalid_refresh_token": "Refresh token tidak valid atau sudah kedaluwarsa",
+    "auth.token_refreshed": "Token berhasil diperbarui",
+    "auth.logout_successful": "Logout berhasil",
+    "auth.token_expired": "Token autentikasi sudah kedaluwarsa",
+    "auth.insufficient_permissions": "Hak akses tidak mencukupi",
+    "auth.unauthorized_access": "Akses tidak diizinkan"
 }

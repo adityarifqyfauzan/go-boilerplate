@@ -12,6 +12,8 @@
     "error.400": "Bad request",
     "error.422": "Unprocessable entity",
 
+    "success": "Success",
+
     "validation.required": "{{.Field}} is required",
     "validation.email": "{{.Field}} must be a valid email address",
     "validation.min": "{{.Field}} must be at least {{.Param}} characters long",
@@ -30,5 +32,21 @@
     "data.deleted": "Data deleted",
     "data.found": "Data found",
     "data.notfound": "Data not found",
-    "data.exists": "Data already exists"
+    "data.exists": "Data already exists",
+
+    "auth.invalid_credentials": "Invalid email or password",
+    "auth.user_inactive": "User account is inactive",
+    "auth.failed_generate_tokens": "Failed to generate authentication tokens",
+    "auth.failed_generate_refresh_token": "Failed to generate refresh token",
+    "auth.login_successful": "Login successful",
+    "auth.user_already_exists": "User with this email already exists",
+    "auth.failed_hash_password": "Failed to hash password",
+    "auth.failed_create_user": "Failed to create user account",
+    "auth.registration_successful": "Registration successful",
+    "auth.invalid_refresh_token": "Invalid or expired refresh token",
+    "auth.token_refreshed": "Token refreshed successfully",
+    "auth.logout_successful": "Logout successful",
+    "auth.token_expired": "Authentication token has expired",
+    "auth.insufficient_permissions": "Insufficient permissions",
+    "auth.unauthorized_access": "Unauthorized access"
 }

@@ -12,6 +12,8 @@
     "error.400": "無効なリクエストです",
     "error.422": "無効なリクエストです",
 
+    "success": "成功しました",
+
     "validation.required": "{{.Field}}は必須項目です",
     "validation.email": "{{.Field}}は有効なメールアドレスである必要があります",
     "validation.min": "{{.Field}}は{{.Param}}文字以上でなければなりません",
@@ -30,5 +32,21 @@
     "data.deleted": "データが削除されました",
     "data.found": "データが見つかりました",
     "data.notfound": "データが見つかりませんでした",
-    "data.exists": "データが既に存在しています"
+    "data.exists": "データが既に存在しています",
+
+    "auth.invalid_credentials": "メールアドレスまたはパスワードが無効です",
+    "auth.user_inactive": "ユーザーアカウントが無効です",
+    "auth.failed_generate_tokens": "認証トークンの生成に失敗しました",
+    "auth.failed_generate_refresh_token": "リフレッシュトークンの生成に失敗しました",
+    "auth.login_successful": "ログインに成功しました",
+    "auth.user_already_exists": "このメールアドレスのユーザーは既に存在します",
+    "auth.failed_hash_password": "パスワードのハッシュ化に失敗しました",
+    "auth.failed_create_user": "ユーザーアカウントの作成に失敗しました",
+    "auth.registration_successful": "登録に成功しました",
+    "auth.invalid_refresh_token": "リフレッシュトークンが無効または期限切れです",
+    "auth.token_refreshed": "トークンが正常に更新されました",
+    "auth.logout_successful": "ログアウトに成功しました",
+    "auth.token_expired": "認証トークンの期限が切れています",
+    "auth.insufficient_permissions": "権限が不足しています",
+    "auth.unauthorized_access": "認証されていないアクセス"
 }

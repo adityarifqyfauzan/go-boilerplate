@@ -48,7 +48,7 @@ func RelationalDatabase(envFiles ...string) *gorm.DB {
 		log.Fatalf("Error: failed to get SQL DB object from GORM: %v", err)
 	}
 
-	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxIdleConns(20)
 	sqlDB.SetMaxOpenConns(200)
 	sqlDB.SetConnMaxLifetime(15 * time.Minute)
 	sqlDB.SetConnMaxIdleTime(5 * time.Minute)
@@ -87,7 +87,8 @@ func MongoDB(envFiles ...string) *mongo.Client {
 
 	for _, envVar := range requiredEnvVars {
 		if os.Getenv(envVar) == "" {
-			log.Fatalf("missing env var: %s", envVar)
+			log.Printf("missing env var: %s", envVar)
+			return nil
 		}
 	}
 

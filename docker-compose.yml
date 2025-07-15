@@ -1,4 +1,23 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-boilerplate
+    ports:
+      - "5001:5001"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - app-network
+
   mysql:
     image: mysql:8.0
     container_name: mysql
@@ -11,7 +30,16 @@ services:
       MYSQL_PASSWORD: mypass
     volumes:
       - mysql-data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password --innodb-use-native-aio=0
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--protocol=tcp", "-uroot", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     restart: always
+    networks:
+      - app-network
 
   prometheus:
     image: prom/prometheus
@@ -22,20 +50,29 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     restart: always
+    networks:
+      - app-network
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:11.0.0
     container_name: grafana
     ports:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
     volumes:
       - grafana-data:/var/lib/grafana
     restart: always
+    networks:
+      - app-network
 
 volumes:
   prometheus-data:
   grafana-data:
   mysql-data:
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Build
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Dependencies
+vendor/
+
+# Logs
+*.log
+
+# MySQL data
+mysql/data/
+mysql/conf/custom.cnf
+
+# Prometheus
+prometheus-data/
+
+# Grafana
+grafana-data/ 

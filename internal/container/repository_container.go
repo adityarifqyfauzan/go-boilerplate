@@ -18,11 +18,19 @@ func repositoryContainer(container *dig.Container) {
 		panic(err)
 	}
 
+	if err := container.Provide(repository.NewRepository[model.UserDetail]); err != nil {
+		panic(err)
+	}
+
 	if err := container.Provide(repository.NewRepository[model.UserRole]); err != nil {
 		panic(err)
 	}
 
 	if err := container.Provide(repository.NewRepository[model.UserStatus]); err != nil {
+		panic(err)
+	}
+
+	if err := container.Provide(repository.NewRepository[model.UserStatusHistory]); err != nil {
 		panic(err)
 	}
 }
