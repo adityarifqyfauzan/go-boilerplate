@@ -12,10 +12,10 @@ import (
 
 // Claims represents the JWT claims structure
 type Claims struct {
-	UserID   int    `json:"user_id"`
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Role     string `json:"role"`
+	UserID   int      `json:"user_id"`
+	Email    string   `json:"email"`
+	Username string   `json:"username"`
+	Roles    []string `json:"roles"`
 	jwt.RegisteredClaims
 }
 
@@ -49,19 +49,19 @@ func NewJWTService() *JWTService {
 }
 
 // GenerateToken creates a new JWT token with the provided claims
-func (j *JWTService) GenerateToken(userID int, email, username, role string) (string, error) {
+func (j *JWTService) GenerateToken(payload Claims) (string, error) {
 	now := time.Now()
 	claims := &Claims{
-		UserID:   userID,
-		Email:    email,
-		Username: username,
-		Role:     role,
+		UserID:   payload.UserID,
+		Email:    payload.Email,
+		Username: payload.Username,
+		Roles:    payload.Roles,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(now.Add(j.expiry)),
 			IssuedAt:  jwt.NewNumericDate(now),
 			NotBefore: jwt.NewNumericDate(now),
-			Issuer:    "go-boilerplate",
-			Subject:   strconv.FormatInt(int64(userID), 10),
+			Issuer:    os.Getenv("APP_NAME"),
+			Subject:   strconv.FormatInt(int64(payload.UserID), 10),
 		},
 	}
 
@@ -116,7 +116,12 @@ func (j *JWTService) RefreshToken(refreshToken string) (string, error) {
 	}
 
 	// Generate new access token
-	return j.GenerateToken(claims.UserID, claims.Email, claims.Username, claims.Role)
+	return j.GenerateToken(Claims{
+		UserID:   claims.UserID,
+		Email:    claims.Email,
+		Username: claims.Username,
+		Roles:    claims.Roles,
+	})
 }
 
 // ExtractUserID extracts user ID from token without full validation
@@ -149,13 +154,13 @@ func (j *JWTService) GetTokenExpiry(tokenString string) (*time.Time, error) {
 }
 
 // GenerateTokenPair generates both access and refresh tokens
-func (j *JWTService) GenerateTokenPair(userID int, email, username, role string) (accessToken, refreshToken string, err error) {
-	accessToken, err = j.GenerateToken(userID, email, username, role)
+func (j *JWTService) GenerateTokenPair(payload Claims) (accessToken, refreshToken string, err error) {
+	accessToken, err = j.GenerateToken(payload)
 	if err != nil {
 		return "", "", err
 	}
 
-	refreshToken, err = j.GenerateRefreshToken(userID)
+	refreshToken, err = j.GenerateRefreshToken(payload.UserID)
 	if err != nil {
 		return "", "", err
 	}

@@ -2,9 +2,9 @@ package model
 
 type Role struct {
 	BaseModel
-	Name     string
-	Slug     string
-	IsActive bool
+	Name     string `json:"name"`
+	Slug     string `json:"slug"`
+	IsActive bool   `json:"is_active"`
 }
 
 func (Role) TableName() string {

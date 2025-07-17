@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/adityarifqyfauzan/go-boilerplate/pkg/jwt"
@@ -60,7 +61,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		c.Set("user_id", claims.UserID)
 		c.Set("user_email", claims.Email)
 		c.Set("user_username", claims.Username)
-		c.Set("user_role", claims.Role)
+		c.Set("roles", claims.Roles)
 		c.Set("user_claims", claims)
 
 		c.Next()
@@ -103,7 +104,7 @@ func OptionalAuthMiddleware() gin.HandlerFunc {
 		c.Set("user_id", claims.UserID)
 		c.Set("user_email", claims.Email)
 		c.Set("user_username", claims.Username)
-		c.Set("user_role", claims.Role)
+		c.Set("roles", claims.Roles)
 		c.Set("user_claims", claims)
 
 		c.Next()
@@ -111,22 +112,40 @@ func OptionalAuthMiddleware() gin.HandlerFunc {
 }
 
 // RoleMiddleware checks if the user has the required role
-func RoleMiddleware(requiredRole string) gin.HandlerFunc {
+func RoleMiddleware(requiredRoles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userRole, exists := c.Get("user_role")
+		userRole, exists := c.Get("roles")
 		if !exists {
 			c.JSON(http.StatusForbidden, gin.H{
-				"error":   "Forbidden",
-				"message": "User role not found in context",
+				"error":   "Unauthorized",
+				"message": "User role not found",
 			})
 			c.Abort()
 			return
 		}
 
-		if userRole != requiredRole {
+		roles, ok := userRole.([]string)
+		if !ok {
 			c.JSON(http.StatusForbidden, gin.H{
-				"error":   "Forbidden",
-				"message": "Insufficient permissions",
+				"error":   "Unauthorized",
+				"message": "Invalid user role format",
+			})
+			c.Abort()
+			return
+		}
+
+		count := 0
+		for _, rr := range requiredRoles {
+			found := slices.Contains(roles, rr)
+			if found {
+				count++
+			}
+		}
+
+		if count == 0 {
+			c.JSON(http.StatusForbidden, gin.H{
+				"error":   "Unauthorized",
+				"message": "User does not have the required role",
 			})
 			c.Abort()
 			return
@@ -147,12 +166,12 @@ func UserMiddleware() gin.HandlerFunc {
 }
 
 // GetUserID retrieves user ID from context
-func GetUserID(c *gin.Context) (uint, bool) {
+func GetUserID(c *gin.Context) (int, bool) {
 	userID, exists := c.Get("user_id")
 	if !exists {
 		return 0, false
 	}
-	return userID.(uint), true
+	return userID.(int), true
 }
 
 // GetUserEmail retrieves user email from context
@@ -164,13 +183,30 @@ func GetUserEmail(c *gin.Context) (string, bool) {
 	return userEmail.(string), true
 }
 
-// GetUserRole retrieves user role from context
+// GetUserRole retrieves the first user role from context
 func GetUserRole(c *gin.Context) (string, bool) {
-	userRole, exists := c.Get("user_role")
+	userRoles, exists := c.Get("roles")
 	if !exists {
 		return "", false
 	}
-	return userRole.(string), true
+	roles, ok := userRoles.([]string)
+	if !ok || len(roles) == 0 {
+		return "", false
+	}
+	return roles[0], true
+}
+
+// GetUserRoles retrieves user roles from context
+func GetUserRoles(c *gin.Context) ([]string, bool) {
+	userRoles, exists := c.Get("roles")
+	if !exists {
+		return nil, false
+	}
+	roles, ok := userRoles.([]string)
+	if !ok {
+		return nil, false
+	}
+	return roles, true
 }
 
 // GetUserClaims retrieves user claims from context

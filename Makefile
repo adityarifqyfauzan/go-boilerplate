@@ -25,3 +25,6 @@ seeder:
 
 seeder-only:
 	go run main.go seeder --only $(name)
+
+module-create:
+	go run main.go make:module $(name)

@@ -6,6 +6,15 @@ import (
 	"time"
 )
 
+func makeTestClaims() Claims {
+	return Claims{
+		UserID:   1,
+		Email:    "test@example.com",
+		Username: "testuser",
+		Roles:    []string{"user"},
+	}
+}
+
 func TestNewJWTService(t *testing.T) {
 	// Test with default values
 	service := NewJWTService()
@@ -26,7 +35,8 @@ func TestNewJWTService(t *testing.T) {
 func TestGenerateToken(t *testing.T) {
 	service := NewJWTService()
 
-	token, err := service.GenerateToken(1, "test@example.com", "testuser", "user")
+	claims := makeTestClaims()
+	token, err := service.GenerateToken(claims)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -39,32 +49,37 @@ func TestGenerateToken(t *testing.T) {
 func TestValidateToken(t *testing.T) {
 	service := NewJWTService()
 
-	// Generate a token
-	token, err := service.GenerateToken(1, "test@example.com", "testuser", "user")
+	claims := makeTestClaims()
+	token, err := service.GenerateToken(claims)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	// Validate the token
-	claims, err := service.ValidateToken(token)
+	parsedClaims, err := service.ValidateToken(token)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	if claims.UserID != 1 {
-		t.Errorf("Expected UserID 1, got %d", claims.UserID)
+	if parsedClaims.UserID != claims.UserID {
+		t.Errorf("Expected UserID %d, got %d", claims.UserID, parsedClaims.UserID)
 	}
 
-	if claims.Email != "test@example.com" {
-		t.Errorf("Expected Email test@example.com, got %s", claims.Email)
+	if parsedClaims.Email != claims.Email {
+		t.Errorf("Expected Email %s, got %s", claims.Email, parsedClaims.Email)
 	}
 
-	if claims.Username != "testuser" {
-		t.Errorf("Expected Username testuser, got %s", claims.Username)
+	if parsedClaims.Username != claims.Username {
+		t.Errorf("Expected Username %s, got %s", claims.Username, parsedClaims.Username)
 	}
 
-	if claims.Role != "user" {
-		t.Errorf("Expected Role user, got %s", claims.Role)
+	if len(parsedClaims.Roles) != len(claims.Roles) {
+		t.Errorf("Expected Role length %d, got %d", len(claims.Roles), len(parsedClaims.Roles))
+	} else {
+		for i, r := range claims.Roles {
+			if parsedClaims.Roles[i] != r {
+				t.Errorf("Expected Role[%d] %s, got %s", i, r, parsedClaims.Roles[i])
+			}
+		}
 	}
 }
 
@@ -84,7 +99,8 @@ func TestGenerateRefreshToken(t *testing.T) {
 func TestGenerateTokenPair(t *testing.T) {
 	service := NewJWTService()
 
-	accessToken, refreshToken, err := service.GenerateTokenPair(1, "test@example.com", "testuser", "user")
+	claims := makeTestClaims()
+	accessToken, refreshToken, err := service.GenerateTokenPair(claims)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -101,8 +117,8 @@ func TestGenerateTokenPair(t *testing.T) {
 func TestRefreshToken(t *testing.T) {
 	service := NewJWTService()
 
-	// Generate token pair
-	accessToken, refreshToken, err := service.GenerateTokenPair(1, "test@example.com", "testuser", "user")
+	claims := makeTestClaims()
+	accessToken, refreshToken, err := service.GenerateTokenPair(claims)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -125,7 +141,9 @@ func TestRefreshToken(t *testing.T) {
 func TestExtractUserID(t *testing.T) {
 	service := NewJWTService()
 
-	token, err := service.GenerateToken(123, "test@example.com", "testuser", "user")
+	claims := makeTestClaims()
+	claims.UserID = 123
+	token, err := service.GenerateToken(claims)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -143,7 +161,8 @@ func TestExtractUserID(t *testing.T) {
 func TestIsTokenExpired(t *testing.T) {
 	service := NewJWTService()
 
-	token, err := service.GenerateToken(1, "test@example.com", "testuser", "user")
+	claims := makeTestClaims()
+	token, err := service.GenerateToken(claims)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -161,7 +180,8 @@ func TestIsTokenExpired(t *testing.T) {
 func TestGetTokenExpiry(t *testing.T) {
 	service := NewJWTService()
 
-	token, err := service.GenerateToken(1, "test@example.com", "testuser", "user")
+	claims := makeTestClaims()
+	token, err := service.GenerateToken(claims)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
@@ -184,18 +204,19 @@ func TestGetTokenExpiry(t *testing.T) {
 func TestValidateTokenWithoutExpiry(t *testing.T) {
 	service := NewJWTService()
 
-	token, err := service.GenerateToken(1, "test@example.com", "testuser", "user")
+	claims := makeTestClaims()
+	token, err := service.GenerateToken(claims)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	claims, err := service.ValidateTokenWithoutExpiry(token)
+	parsedClaims, err := service.ValidateTokenWithoutExpiry(token)
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	if claims.UserID != 1 {
-		t.Errorf("Expected UserID 1, got %d", claims.UserID)
+	if parsedClaims.UserID != claims.UserID {
+		t.Errorf("Expected UserID %d, got %d", claims.UserID, parsedClaims.UserID)
 	}
 }
 

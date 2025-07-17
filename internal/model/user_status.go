@@ -2,8 +2,8 @@ package model
 
 type UserStatus struct {
 	BaseModel
-	Name string
-	Slug string
+	Name string `json:"name"`
+	Slug string `json:"slug"`
 }
 
 func (UserStatus) TableName() string {

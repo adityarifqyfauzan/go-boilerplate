@@ -35,7 +35,7 @@ func (h *handler) Login(c *gin.Context) {
 		return
 	}
 
-	response := h.service.Login(c.Request.Context(), request)
+	response := h.service.Login(c, request)
 	c.JSON(response.Code, response)
 }
 
@@ -53,7 +53,7 @@ func (h *handler) Register(c *gin.Context) {
 		return
 	}
 
-	response := h.service.Register(c.Request.Context(), request)
+	response := h.service.Register(c, request)
 	c.JSON(response.Code, response)
 }
 
@@ -77,6 +77,11 @@ func (h *handler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	response := h.service.RefreshToken(c.Request.Context(), request.RefreshToken)
+	response := h.service.RefreshToken(c, request.RefreshToken)
+	c.JSON(response.Code, response)
+}
+
+func (h *handler) Me(c *gin.Context) {
+	response := h.service.Me(c)
 	c.JSON(response.Code, response)
 }

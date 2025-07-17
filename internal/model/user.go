@@ -8,11 +8,11 @@ import (
 type User struct {
 	BaseModel
 	SoftDelete
-	Name          string
-	Email         string
-	Password      string
-	UserStatusID  int
-	RememberToken string
+	Name          string `json:"name"`
+	Email         string `json:"email"`
+	Password      string `json:"-"`
+	UserStatusID  int    `json:"user_status_id"`
+	RememberToken string `json:"remember_token"`
 }
 
 func (User) TableName() string {

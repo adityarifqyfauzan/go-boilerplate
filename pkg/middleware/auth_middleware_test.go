@@ -19,7 +19,12 @@ func TestAuthMiddleware_ValidToken(t *testing.T) {
 	jwtService := jwt.NewJWTService()
 
 	// Generate a valid token
-	token, err := jwtService.GenerateToken(1, "test@example.com", "testuser", "user")
+	token, err := jwtService.GenerateToken(jwt.Claims{
+		UserID:   1,
+		Email:    "test@example.com",
+		Username: "testuser",
+		Roles:    []string{"user"},
+	})
 	if err != nil {
 		t.Fatalf("Failed to generate token: %v", err)
 	}
@@ -115,7 +120,12 @@ func TestOptionalAuthMiddleware_WithToken(t *testing.T) {
 	jwtService := jwt.NewJWTService()
 
 	// Generate a valid token
-	token, err := jwtService.GenerateToken(1, "test@example.com", "testuser", "user")
+	token, err := jwtService.GenerateToken(jwt.Claims{
+		UserID:   1,
+		Email:    "test@example.com",
+		Username: "testuser",
+		Roles:    []string{"user"},
+	})
 	if err != nil {
 		t.Fatalf("Failed to generate token: %v", err)
 	}
@@ -172,7 +182,12 @@ func TestRoleMiddleware_ValidRole(t *testing.T) {
 	jwtService := jwt.NewJWTService()
 
 	// Generate a token with admin role
-	token, err := jwtService.GenerateToken(1, "admin@example.com", "admin", "admin")
+	token, err := jwtService.GenerateToken(jwt.Claims{
+		UserID:   1,
+		Email:    "test@example.com",
+		Username: "testuser",
+		Roles:    []string{"admin"},
+	})
 	if err != nil {
 		t.Fatalf("Failed to generate token: %v", err)
 	}
@@ -197,7 +212,12 @@ func TestRoleMiddleware_InvalidRole(t *testing.T) {
 	jwtService := jwt.NewJWTService()
 
 	// Generate a token with user role
-	token, err := jwtService.GenerateToken(1, "user@example.com", "user", "user")
+	token, err := jwtService.GenerateToken(jwt.Claims{
+		UserID:   1,
+		Email:    "test@example.com",
+		Username: "testuser",
+		Roles:    []string{"user"},
+	})
 	if err != nil {
 		t.Fatalf("Failed to generate token: %v", err)
 	}
@@ -222,7 +242,12 @@ func TestGetUserClaims(t *testing.T) {
 	jwtService := jwt.NewJWTService()
 
 	// Generate a valid token
-	token, err := jwtService.GenerateToken(1, "test@example.com", "testuser", "user")
+	token, err := jwtService.GenerateToken(jwt.Claims{
+		UserID:   1,
+		Email:    "test@example.com",
+		Username: "testuser",
+		Roles:    []string{"user"},
+	})
 	if err != nil {
 		t.Fatalf("Failed to generate token: %v", err)
 	}
@@ -239,6 +264,51 @@ func TestGetUserClaims(t *testing.T) {
 		}
 		if claims.Email != "test@example.com" {
 			t.Errorf("Expected Email test@example.com, got %s", claims.Email)
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "success"})
+	})
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/test", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+}
+
+func TestGetUserRoles(t *testing.T) {
+	router := setupTestRouter()
+	jwtService := jwt.NewJWTService()
+
+	// Generate a valid token with multiple roles
+	token, err := jwtService.GenerateToken(jwt.Claims{
+		UserID:   1,
+		Email:    "test@example.com",
+		Username: "testuser",
+		Roles:    []string{"user", "admin"},
+	})
+	if err != nil {
+		t.Fatalf("Failed to generate token: %v", err)
+	}
+
+	router.Use(AuthMiddleware())
+	router.GET("/test", func(c *gin.Context) {
+		roles, exists := GetUserRoles(c)
+		if !exists {
+			t.Error("Expected roles to be set in context")
+			return
+		}
+		if len(roles) != 2 {
+			t.Errorf("Expected 2 roles, got %d", len(roles))
+		}
+		if roles[0] != "user" {
+			t.Errorf("Expected first role 'user', got %s", roles[0])
+		}
+		if roles[1] != "admin" {
+			t.Errorf("Expected second role 'admin', got %s", roles[1])
 		}
 
 		c.JSON(http.StatusOK, gin.H{"message": "success"})

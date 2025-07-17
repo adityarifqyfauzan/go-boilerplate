@@ -25,6 +25,7 @@
     "fields.name": "名前",
     "fields.email": "メールアドレス",
     "fields.password": "パスワード",
+    "fields.password_confirmation": "パスワード確認",
     "fields.age": "年齢",
 
     "data.created": "データが作成されました",
@@ -48,5 +49,8 @@
     "auth.logout_successful": "ログアウトに成功しました",
     "auth.token_expired": "認証トークンの期限が切れています",
     "auth.insufficient_permissions": "権限が不足しています",
-    "auth.unauthorized_access": "認証されていないアクセス"
+    "auth.unauthorized_access": "認証されていないアクセス",
+    "auth.user_roles_not_found": "ユーザーのロールが見つかりません",
+    "auth.role_not_found": "ロールが見つかりません",
+    "auth.roles_not_found": "ロールが見つかりません"
 }

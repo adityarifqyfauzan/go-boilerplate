@@ -2,8 +2,8 @@ package model
 
 type UserRole struct {
 	BaseModel
-	UserID int
-	RoleID int
+	UserID int `json:"user_id"`
+	RoleID int `json:"role_id"`
 }
 
 func (UserRole) TableName() string {

@@ -12,6 +12,7 @@ mysql/conf/custom.cnf
 *.test
 *.out
 go.work
+__debug_*
 
 # IDE
 .idea/
@@ -24,3 +25,12 @@ main
 *.exe
 
 dbconfig.yml
+
+# Grafana
+grafana/
+
+# Prometheus
+prometheus/
+
+# Jaeger
+jaeger/

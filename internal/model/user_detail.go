@@ -2,9 +2,9 @@ package model
 
 type UserDetail struct {
 	BaseModel
-	UserID      int
-	Address     string
-	PhoneNumber string
+	UserID      int    `json:"user_id"`
+	Address     string `json:"address"`
+	PhoneNumber string `json:"phone_number"`
 }
 
 func (UserDetail) TableName() string {

@@ -34,8 +34,16 @@ func (t *GoI18nTranslator) T(messageID string, data map[string]interface{}) stri
 }
 
 func (t *GoI18nTranslator) FieldName(field string) string {
+	// the field format is CamelCase, so I wanna convert it to snake_case
+	var snakeCaseField strings.Builder
+	for i, r := range field {
+		if i > 0 && r >= 'A' && r <= 'Z' {
+			snakeCaseField.WriteByte('_')
+		}
+		snakeCaseField.WriteByte(byte(strings.ToLower(string(r))[0]))
+	}
 	msg, err := t.localizer.Localize(&i18n.LocalizeConfig{
-		MessageID: "fields." + strings.ToLower(field),
+		MessageID: "fields." + snakeCaseField.String(),
 	})
 	if err != nil {
 		return field

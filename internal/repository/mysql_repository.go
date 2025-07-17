@@ -31,7 +31,12 @@ func (r *mysqlRepository[T]) FindBy(ctx context.Context, criteria map[string]int
 		query = query.Order(orderBy)
 	}
 
-	if err := query.Offset((page - 1) * size).Limit(size).Find(&entities).Error; err != nil {
+	query = query.Offset((page - 1) * size)
+	if size != 0 {
+		query = query.Limit(size)
+	}
+
+	if err := query.Find(&entities).Error; err != nil {
 		return nil, fmt.Errorf("find by failed: %w", err)
 	}
 

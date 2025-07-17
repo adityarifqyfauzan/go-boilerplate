@@ -8,7 +8,7 @@ import (
 
 func Init(engine *gin.Engine, config *config.Config) {
 
-	v1 := engine.Group("/v1")
+	v1 := engine.Group("api/v1")
 
 	// register all module routes here
 	authentication.InitRoute(v1, config)

@@ -130,8 +130,7 @@ DB_DRIVER=mysql
 
 ### Manual Database Setup
 1. Create a MySQL/PostgreSQL database
-2. Update your `dbconfig.yml` file with database credentials
-3. Run migrations:
+2. Run migrations:
 ```bash
 make migrate-up
 ```
@@ -247,14 +246,25 @@ message := i18n.T("hello", map[string]any{
 
 ## 🔐 Authentication
 
-JWT-based authentication is included:
+JWT-based authentication is included with support for multiple user roles:
 
 ### Login
 ```bash
 POST /v1/authentication/login
 {
-    "email": "user@example.com",
-    "password": "password"
+ email   : "user@example.com",
+ password: "password"
+}
+```
+
+### JWT Claims Structure
+The JWT token contains the following claims:
+```go
+type Claims struct {
+    UserID   int      `json:"user_id"`
+    Email    string   `json:"email"`
+    Username string   `json:"username` 
+    Roles    []string `json:"roles"`  // Multiple roles support
 }
 ```
 
@@ -262,6 +272,40 @@ POST /v1/authentication/login
 Use the auth middleware for protected endpoints:
 ```go
 userRoute.Use(middleware.AuthMiddleware())
+```
+
+### Role-Based Access Control
+The middleware supports multiple roles and flexible role checking:
+
+```go
+// Require admin role
+userRoute.Use(middleware.AuthMiddleware(), middleware.AdminMiddleware())
+
+// Require user role
+userRoute.Use(middleware.AuthMiddleware(), middleware.UserMiddleware())
+
+// Require any of multiple roles
+userRoute.Use(middleware.AuthMiddleware(), middleware.RoleMiddleware("admin","moderator"))
+
+// Require specific role
+userRoute.Use(middleware.AuthMiddleware(), middleware.RoleMiddleware("editor"))
+```
+
+### Accessing User Information
+Helper functions to retrieve user information from context:
+
+```go
+// Get user ID
+userID, exists := middleware.GetUserID(c)
+
+// Get user email
+email, exists := middleware.GetUserEmail(c)
+
+// Get user claims (full JWT claims)
+claims, exists := middleware.GetUserClaims(c)
+
+// Get user roles (returns []string)
+roles, exists := middleware.GetUserRoles(c)
 ```
 
 ## 📈 Monitoring
@@ -321,7 +365,7 @@ go test ./internal/module/authentication
 go test -cover ./...
 ```
 
-## �� API Endpoints
+## 📄 API Endpoints
 
 ### Health Check
 ```bash
@@ -345,6 +389,7 @@ Create a `.env` file with:
 
 ```env
 # Application
+APP_NAME=go-starter-kit
 APP_PORT=5001
 APP_ENV=development
 
@@ -371,31 +416,6 @@ MONGO_USER=
 MONGO_PASS=
 ```
 
-### Database Configuration
-The application uses two different database configurations:
-
-1. **Application Database** (via environment variables): Used by the main application
-2. **Migration Database** (via `dbconfig.yml`): Used by Goose migrations
-
-#### Migration Configuration
-Update `dbconfig.yml` with your migration database settings:
-
-```yaml
-development:
-  dialect: mysql
-  datasource: root:rootpass@tcp(127.0.0.1:3306)/go_starter_kit?parseTime=true
-  dir: internal/database/migrations
-  table: migrations
-
-prod:
-  dialect: mysql
-  datasource: root:pass@tcp(ipaddress:3306)/go_starter_kit?parseTime=true
-  dir: internal/database/migrations
-  table: migrations
-```
-
-**Note**: The migration database can be different from the application database. The application reads from environment variables, while migrations use the `dbconfig.yml` file.
-
 ## 🚀 Deployment
 
 ### Production Build
@@ -420,13 +440,15 @@ docker build -t go-boilerplate:prod .
 
 ### Make Commands
 ```bash
-make migrate-up          # Run migrations
-make migrate-down        # Rollback migrations
-make migrate-status      # Check migration status
-make migrate-create      # Create new migration
-make migrate-refresh     # Refresh migrations
-make seeder              # Run all seeders
-make seeder-only         # Run specific seeder
+make migrate-up                         # Run migrations
+make migrate-down                       # Rollback migrations
+make migrate-down-to version={version}  # Rollback specific version
+make migrate-status                     # Check migration status
+make migrate-create name={name}         # Create new migration
+make migrate-refresh                    # Refresh migrations
+make seeder                             # Run all seeders
+make seeder-only name={name}            # Run specific seeder
+make module-create name={name}          # Generate module
 ```
 
 ### CLI Commands

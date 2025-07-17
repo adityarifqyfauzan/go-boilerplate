@@ -25,6 +25,7 @@
     "fields.name": "Nama",
     "fields.email": "Email",
     "fields.password": "Kata Sandi",
+    "fields.password_confirmation": "Konfirmasi Kata Sandi",
     "fields.age": "Umur",
 
     "data.created": "Data berhasil dibuat",
@@ -48,5 +49,10 @@
     "auth.logout_successful": "Logout berhasil",
     "auth.token_expired": "Token autentikasi sudah kedaluwarsa",
     "auth.insufficient_permissions": "Hak akses tidak mencukupi",
-    "auth.unauthorized_access": "Akses tidak diizinkan"
+    "auth.unauthorized_access": "Akses tidak diizinkan",
+    "auth.user_roles_not_found": "Peran pengguna tidak ditemukan",
+    "auth.role_not_found": "Peran tidak ditemukan",
+    "auth.roles_not_found": "Peran tidak ditemukan",
+    "auth.token_not_found": "Token tidak ditemukan",
+    "auth.invalid_token_format": "Format token tidak valid"
 }

@@ -25,6 +25,7 @@
     "fields.name": "Name",
     "fields.email": "Email",
     "fields.password": "Password",
+    "fields.password_confirmation": "Password confirmation",
     "fields.age": "Age",
 
     "data.created": "Data created",
@@ -48,5 +49,10 @@
     "auth.logout_successful": "Logout successful",
     "auth.token_expired": "Authentication token has expired",
     "auth.insufficient_permissions": "Insufficient permissions",
-    "auth.unauthorized_access": "Unauthorized access"
+    "auth.unauthorized_access": "Unauthorized access",
+    "auth.user_roles_not_found": "User roles not found",
+    "auth.role_not_found": "Role not found",
+    "auth.roles_not_found": "Roles not found",
+    "auth.token_not_found": "Token not found",
+    "auth.invalid_token_format": "Invalid token format"
 }
