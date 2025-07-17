@@ -182,10 +182,55 @@ func (s *service) Register(ctx context.Context, request RegisterRequest) *helper
 func (s *service) RefreshToken(ctx context.Context, refreshToken string) *helper.ApiResponse {
 	translate := translator.NewTranslator(ctx.Value(translator.LOCALIZER).(*i18n.Localizer))
 
-	// Validate refresh token and generate new access token
-	token, err := s.jwtService.RefreshToken(refreshToken)
+	// validate refresh token and generate new access token
+	_, err := s.jwtService.ValidateToken(refreshToken)
 	if err != nil {
 		return helper.NewApiResponse(http.StatusUnauthorized, translate.T("auth.invalid_refresh_token", nil), nil)
+	}
+
+	userID, err := s.jwtService.ExtractUserID(refreshToken)
+	if err != nil {
+		return helper.NewApiResponse(http.StatusUnauthorized, translate.T("auth.invalid_refresh_token", nil), nil)
+	}
+
+	user, err := s.userRepo.FindOneBy(ctx, map[string]interface{}{"id": userID})
+	if err != nil {
+		return helper.NewApiResponse(http.StatusUnprocessableEntity, translate.T("auth.invalid_credentials", nil), nil)
+	}
+
+	if user.UserStatusID == constant.USER_STATUS_INACTIVE_ID {
+		return helper.NewApiResponse(http.StatusUnauthorized, translate.T("auth.user_inactive", nil), nil)
+	}
+
+	userRoles, err := s.userRoleRepo.FindBy(ctx, map[string]interface{}{"user_id": user.ID}, "", 0, 0)
+	if err != nil {
+		return helper.NewApiResponse(http.StatusUnprocessableEntity, translate.T("auth.user_not_found", nil), nil)
+	}
+
+	roleIDs := make([]int, 0)
+	for _, userRole := range userRoles {
+		roleIDs = append(roleIDs, userRole.RoleID)
+	}
+
+	roles, err := s.roleRepo.FindBy(ctx, map[string]interface{}{"id": roleIDs}, "", 0, 0)
+	if err != nil {
+		return helper.NewApiResponse(http.StatusUnprocessableEntity, translate.T("auth.user_not_found", nil), nil)
+	}
+
+	roleNames := make([]string, 0)
+	for _, role := range roles {
+		roleNames = append(roleNames, role.Slug)
+	}
+
+	// Generate JWT tokens
+	token, err := s.jwtService.GenerateToken(jwt.Claims{
+		UserID:   user.ID,
+		Email:    user.Email,
+		Username: user.Name,
+		Roles:    roleNames,
+	})
+	if err != nil {
+		return helper.NewApiResponse(http.StatusUnprocessableEntity, translate.T("auth.failed_generate_tokens", nil), nil)
 	}
 
 	return helper.NewApiResponse(http.StatusOK, translate.T("auth.token_refreshed", nil), RefreshTokenResponse{
