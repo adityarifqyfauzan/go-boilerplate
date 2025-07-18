@@ -15,7 +15,7 @@ func init() {
 func upCreateRolesTable(ctx context.Context, tx *sql.Tx) error {
 	// This code is executed when the migration is applied.
 	return schema.Create(ctx, tx, "roles", func(table *schema.Blueprint) {
-		table.UnsignedBigInteger("id", true).Primary()
+		table.ID()
 		table.String("name", 50).Unique()
 		table.String("slug", 50).Unique()
 		table.Boolean("is_active").Default("TRUE")

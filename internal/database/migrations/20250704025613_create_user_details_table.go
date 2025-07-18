@@ -15,7 +15,7 @@ func init() {
 func upUserDetailsTable(ctx context.Context, tx *sql.Tx) error {
 	// This code is executed when the migration is applied.
 	return schema.Create(ctx, tx, "user_details", func(table *schema.Blueprint) {
-		table.UnsignedBigInteger("id", true).Primary()
+		table.ID()
 		table.UnsignedBigInteger("user_id")
 		table.Text("address").Nullable()
 		table.String("phone_number", 25).Nullable()

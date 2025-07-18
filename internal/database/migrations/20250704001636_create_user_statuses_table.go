@@ -15,7 +15,7 @@ func init() {
 func upUserStatusesTable(ctx context.Context, tx *sql.Tx) error {
 	// This code is executed when the migration is applied.
 	return schema.Create(ctx, tx, "user_statuses", func(table *schema.Blueprint) {
-		table.UnsignedBigInteger("id", true).Primary()
+		table.ID()
 		table.String("name", 50).Unique()
 		table.String("slug", 50).Unique()
 		table.Timestamp("created_at").Default("CURRENT_TIMESTAMP")

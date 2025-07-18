@@ -15,7 +15,7 @@ func init() {
 func upCreateUsersTable(ctx context.Context, tx *sql.Tx) error {
 	// This code is executed when the migration is applied.
 	return schema.Create(ctx, tx, "users", func(table *schema.Blueprint) {
-		table.UnsignedBigInteger("id", true).Primary()
+		table.ID()
 		table.String("name", 100)
 		table.String("email", 255).Unique()
 		table.String("password", 255)

@@ -15,7 +15,7 @@ func init() {
 func upUserRolesTable(ctx context.Context, tx *sql.Tx) error {
 	// This code is executed when the migration is applied.
 	return schema.Create(ctx, tx, "user_roles", func(table *schema.Blueprint) {
-		table.UnsignedBigInteger("id", true).Primary()
+		table.ID()
 		table.UnsignedBigInteger("user_id")
 		table.UnsignedBigInteger("role_id")
 		table.Timestamp("created_at").Default("CURRENT_TIMESTAMP")

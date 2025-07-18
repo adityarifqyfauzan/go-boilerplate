@@ -28,6 +28,6 @@ func InitRoute(route *gin.RouterGroup, config *config.Config) {
 	authenticationRoute.POST("/refresh-token", handler.RefreshToken)
 
 	authenticationRoute.Use(middleware.AuthMiddleware())
-	authenticationRoute.Use(middleware.RoleMiddleware(constant.ROLE_USER_SLUG))
+	authenticationRoute.Use(middleware.RoleMiddleware(constant.ROLE_USER_SLUG, constant.ROLE_ADMIN_SLUG))
 	authenticationRoute.GET("/me", handler.Me)
 }
