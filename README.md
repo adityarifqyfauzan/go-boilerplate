@@ -304,6 +304,7 @@ userRoute.Use(middleware.AuthMiddleware(), middleware.RoleMiddleware("editor"))
 - **Prometheus Metrics:** `/metrics`
 - **Grafana Dashboard:** [http://localhost:3000](http://localhost:3000) (admin/admin)
 - **Prometheus:** [http://localhost:9090](http://localhost:9090)
+- **Jaeger Tracing:** If you set the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable, traces will be exported to Jaeger. you can access [http://localhost:16686/search](http://localhost:16686/search) to see the span.
 
 ---
 
@@ -386,6 +387,8 @@ MONGO_PORT=27017
 MONGO_SECURITY=false
 MONGO_USER=
 MONGO_PASS=
+# OpenTelemetry
+OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4318
 ```
 
 ---

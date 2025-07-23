@@ -14,6 +14,7 @@ import (
 
 	"github.com/adityarifqyfauzan/go-boilerplate/config"
 	"github.com/adityarifqyfauzan/go-boilerplate/internal/command"
+	"github.com/adityarifqyfauzan/go-boilerplate/internal/helper"
 	"github.com/adityarifqyfauzan/go-boilerplate/internal/routes"
 	"github.com/adityarifqyfauzan/go-boilerplate/pkg/middleware"
 	"github.com/adityarifqyfauzan/go-boilerplate/pkg/opentelemetry"
@@ -64,7 +65,12 @@ func Init() {
 		err = errors.Join(err, otelShutdown(context.Background()))
 	}()
 
+	if helper.IsProduction() {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	r := gin.Default()
+	r.Use(gin.Recovery())
+
 	r.Use(middleware.I18nMiddleware())
 	r.Use(otelgin.Middleware(opentelemetry.GetServiceName()))
 
@@ -88,11 +94,9 @@ func Init() {
 	routes.Init(r, routerConfig)
 
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%s", os.Getenv("APP_PORT")),
-		Handler:      r,
-		BaseContext:  func(_ net.Listener) context.Context { return ctx },
-		ReadTimeout:  time.Second,
-		WriteTimeout: 10 * time.Second,
+		Addr:        fmt.Sprintf(":%s", os.Getenv("APP_PORT")),
+		Handler:     r,
+		BaseContext: func(_ net.Listener) context.Context { return ctx },
 	}
 
 	// start server in a goroutine

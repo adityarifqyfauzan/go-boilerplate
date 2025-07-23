@@ -3,16 +3,16 @@ package opentelemetry
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
-	"time"
 
 	"os"
 
+	"github.com/adityarifqyfauzan/go-boilerplate/internal/helper"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutlog"
-	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	"go.opentelemetry.io/otel/log/global"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/log"
 	"go.opentelemetry.io/otel/sdk/metric"
@@ -55,22 +55,22 @@ func SetupOTelSDK(ctx context.Context) (shutdown func(context.Context) error, er
 	otel.SetTracerProvider(tracerProvider)
 
 	// Set up meter provider.
-	meterProvider, err := newMeterProvider()
-	if err != nil {
-		handleErr(err)
-		return
-	}
-	shutdownFuncs = append(shutdownFuncs, meterProvider.Shutdown)
-	otel.SetMeterProvider(meterProvider)
+	// meterProvider, err := newMeterProvider()
+	// if err != nil {
+	// 	handleErr(err)
+	// 	return
+	// }
+	// shutdownFuncs = append(shutdownFuncs, meterProvider.Shutdown)
+	// otel.SetMeterProvider(meterProvider)
 
 	// Set up logger provider.
-	loggerProvider, err := newLoggerProvider()
-	if err != nil {
-		handleErr(err)
-		return
-	}
-	shutdownFuncs = append(shutdownFuncs, loggerProvider.Shutdown)
-	global.SetLoggerProvider(loggerProvider)
+	// loggerProvider, err := newLoggerProvider()
+	// if err != nil {
+	// 	handleErr(err)
+	// 	return
+	// }
+	// shutdownFuncs = append(shutdownFuncs, loggerProvider.Shutdown)
+	// global.SetLoggerProvider(loggerProvider)
 
 	return
 
@@ -84,8 +84,19 @@ func newPropagator() propagation.TextMapPropagator {
 }
 
 func newTracerProvider() (*trace.TracerProvider, error) {
-	traceExporter, err := stdouttrace.New(
-		stdouttrace.WithPrettyPrint())
+	var traceExporter trace.SpanExporter
+	var err error
+
+	otlpEndpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+	if otlpEndpoint == "" {
+		return nil, fmt.Errorf("OTEL_EXPORTER_OTLP_ENDPOINT is not set")
+	}
+
+	traceExporter, err = otlptracehttp.New(
+		context.Background(),
+		otlptracehttp.WithEndpoint(otlpEndpoint),
+		otlptracehttp.WithInsecure(),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -99,25 +110,51 @@ func newTracerProvider() (*trace.TracerProvider, error) {
 		return nil, err
 	}
 
-	tracerProvider := trace.NewTracerProvider(
-		trace.WithBatcher(traceExporter,
-			// Default is 5s. Set to 1s for demonstrative purposes.
-			trace.WithBatchTimeout(time.Second)),
-		trace.WithResource(res),
-	)
+	tracerProvider := new(trace.TracerProvider)
+
+	if helper.IsProduction() {
+		tracerProvider = trace.NewTracerProvider(
+			trace.WithBatcher(traceExporter),
+			trace.WithResource(res),
+			trace.WithSampler(trace.ParentBased(trace.TraceIDRatioBased(0.6))), // only sample 30% of requests
+		)
+	} else {
+		tracerProvider = trace.NewTracerProvider(
+			trace.WithBatcher(traceExporter),
+			trace.WithResource(res),
+		)
+	}
+
 	return tracerProvider, nil
 }
 
 func newMeterProvider() (*metric.MeterProvider, error) {
-	metricExporter, err := stdoutmetric.New()
+	otlpEndpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+	if otlpEndpoint == "" {
+		return nil, fmt.Errorf("OTEL_EXPORTER_OTLP_ENDPOINT is not set")
+	}
+
+	metricExporter, err := otlpmetrichttp.New(
+		context.Background(),
+		otlpmetrichttp.WithEndpoint(otlpEndpoint),
+		otlpmetrichttp.WithInsecure(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := resource.New(context.Background(),
+		resource.WithAttributes(
+			semconv.ServiceNameKey.String(GetServiceName()),
+		),
+	)
 	if err != nil {
 		return nil, err
 	}
 
 	meterProvider := metric.NewMeterProvider(
-		metric.WithReader(metric.NewPeriodicReader(metricExporter,
-			// Default is 1m. Set to 3s for demonstrative purposes.
-			metric.WithInterval(3*time.Second))),
+		metric.WithReader(metric.NewPeriodicReader(metricExporter)),
+		metric.WithResource(res),
 	)
 	return meterProvider, nil
 }

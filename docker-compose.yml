@@ -68,6 +68,18 @@ services:
     networks:
       - app-network
 
+  jaeger:
+    image: jaegertracing/all-in-one:1.56
+    container_name: jaeger
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "4318:4318"   # OTLP HTTP endpoint
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    restart: always
+    networks:
+      - app-network
+
 volumes:
   prometheus-data:
   grafana-data:

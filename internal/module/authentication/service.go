@@ -11,6 +11,9 @@ import (
 	"github.com/adityarifqyfauzan/go-boilerplate/pkg/jwt"
 	"github.com/adityarifqyfauzan/go-boilerplate/pkg/translator"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -49,7 +52,18 @@ func NewService(
 }
 
 func (s *service) Login(ctx context.Context, request LoginRequest) *helper.ApiResponse {
+	tr := otel.Tracer("authentication-service")
+	ctx, span := tr.Start(ctx, "LoginService")
+	defer span.End()
+
 	translate := translator.NewTranslator(ctx.Value(translator.LOCALIZER).(*i18n.Localizer))
+
+	var err error
+	defer func(err error) {
+		if err != nil {
+			span.RecordError(err)
+		}
+	}(err)
 
 	// Find user by email
 	user, err := s.userRepo.FindOneBy(ctx, map[string]interface{}{"email": request.Email})
@@ -117,6 +131,17 @@ func (s *service) Login(ctx context.Context, request LoginRequest) *helper.ApiRe
 }
 
 func (s *service) Register(ctx context.Context, request RegisterRequest) *helper.ApiResponse {
+	tr := otel.Tracer("auth-service")
+	ctx, span := tr.Start(ctx, "RegisterService")
+	defer span.End()
+
+	var err error
+	defer func(err error) {
+		if err != nil {
+			span.RecordError(err)
+		}
+	}(err)
+
 	translate := translator.NewTranslator(ctx.Value(translator.LOCALIZER).(*i18n.Localizer))
 
 	// Check if user already exists
@@ -173,6 +198,27 @@ func (s *service) Register(ctx context.Context, request RegisterRequest) *helper
 		return helper.NewApiResponse(http.StatusUnprocessableEntity, translate.T("error.422", nil), nil)
 	}
 
+	span.AddEvent("Create User", trace.WithAttributes(
+		attribute.KeyValue{
+			Key: "email",
+			Value: attribute.StringValue(
+				request.Email,
+			),
+		},
+		attribute.KeyValue{
+			Key: "name",
+			Value: attribute.StringValue(
+				user.Name,
+			),
+		},
+		attribute.KeyValue{
+			Key: "roles",
+			Value: attribute.StringValue(
+				constant.ROLE_USER_SLUG,
+			),
+		},
+	))
+
 	return helper.NewApiResponse(http.StatusCreated, translate.T("auth.registration_successful", nil), RegisterResponse{
 		Token:        token,
 		RefreshToken: refreshToken,
@@ -180,6 +226,10 @@ func (s *service) Register(ctx context.Context, request RegisterRequest) *helper
 }
 
 func (s *service) RefreshToken(ctx context.Context, refreshToken string) *helper.ApiResponse {
+	tr := otel.Tracer("authentication-service")
+	ctx, span := tr.Start(ctx, "RefreshTokenService")
+	defer span.End()
+
 	translate := translator.NewTranslator(ctx.Value(translator.LOCALIZER).(*i18n.Localizer))
 
 	// validate refresh token and generate new access token
@@ -239,6 +289,10 @@ func (s *service) RefreshToken(ctx context.Context, refreshToken string) *helper
 }
 
 func (s *service) Me(ctx context.Context) *helper.ApiResponse {
+	tr := otel.Tracer("authentication-service")
+	ctx, span := tr.Start(ctx, "MeService")
+	defer span.End()
+
 	translate := translator.NewTranslator(ctx.Value(translator.LOCALIZER).(*i18n.Localizer))
 	userID := ctx.Value("user_id").(int)
 	user, err := s.userRepo.FindOneBy(ctx, map[string]interface{}{"id": userID})

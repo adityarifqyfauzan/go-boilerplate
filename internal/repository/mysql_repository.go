@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"go.opentelemetry.io/otel"
 	"gorm.io/gorm"
 )
 
@@ -16,14 +17,39 @@ func NewRepository[T any](db *gorm.DB) RelationalRepository[T] {
 }
 
 func (r *mysqlRepository[T]) FindOneBy(ctx context.Context, criteria map[string]interface{}) (*T, error) {
+	tr := otel.Tracer("find-one-by-repository")
+	spanName := fmt.Sprintf("FindOneByMainRepository<%T>", *new(T))
+	ctx, span := tr.Start(ctx, spanName)
+	defer span.End()
+
+	var err error
+	defer func(err error) {
+		if err != nil {
+			span.RecordError(err)
+		}
+	}(err)
+
 	var entity T
-	if err := r.db.WithContext(ctx).Where(criteria).First(&entity).Error; err != nil {
+	err = r.db.WithContext(ctx).Where(criteria).First(&entity).Error
+	if err != nil {
 		return nil, fmt.Errorf("find one by failed: %w", err)
 	}
 	return &entity, nil
 }
 
 func (r *mysqlRepository[T]) FindBy(ctx context.Context, criteria map[string]interface{}, orderBy string, page, size int) ([]*T, error) {
+	tr := otel.Tracer("find-by-repository")
+	spanName := fmt.Sprintf("FindByMainRepository<%T>", *new(T))
+	ctx, span := tr.Start(ctx, spanName)
+	defer span.End()
+
+	var err error
+	defer func(err error) {
+		if err != nil {
+			span.RecordError(err)
+		}
+	}(err)
+
 	var entities []*T
 	query := r.db.WithContext(ctx).Where(criteria)
 
@@ -36,7 +62,8 @@ func (r *mysqlRepository[T]) FindBy(ctx context.Context, criteria map[string]int
 		query = query.Limit(size)
 	}
 
-	if err := query.Find(&entities).Error; err != nil {
+	err = query.Find(&entities).Error
+	if err != nil {
 		return nil, fmt.Errorf("find by failed: %w", err)
 	}
 
@@ -44,21 +71,60 @@ func (r *mysqlRepository[T]) FindBy(ctx context.Context, criteria map[string]int
 }
 
 func (r *mysqlRepository[T]) Create(ctx context.Context, m *T, tx *gorm.DB) (*T, error) {
-	if err := tx.WithContext(ctx).Create(m).Error; err != nil {
+	tr := otel.Tracer("create-repository")
+	spanName := fmt.Sprintf("CreateMainRepository<%T>", *new(T))
+	ctx, span := tr.Start(ctx, spanName)
+	defer span.End()
+
+	var err error
+	defer func(err error) {
+		if err != nil {
+			span.RecordError(err)
+		}
+	}(err)
+
+	err = tx.WithContext(ctx).Create(m).Error
+	if err != nil {
 		return nil, fmt.Errorf("create failed: %w", err)
 	}
 	return m, nil
 }
 
 func (r *mysqlRepository[T]) Update(ctx context.Context, m *T, tx *gorm.DB) error {
-	if err := tx.WithContext(ctx).Save(m).Error; err != nil {
+	tr := otel.Tracer("update-repository")
+	spanName := fmt.Sprintf("UpdateMainRepository<%T>", *new(T))
+	ctx, span := tr.Start(ctx, spanName)
+	defer span.End()
+
+	var err error
+	defer func(err error) {
+		if err != nil {
+			span.RecordError(err)
+		}
+	}(err)
+
+	err = tx.WithContext(ctx).Save(m).Error
+	if err != nil {
 		return fmt.Errorf("update failed: %w", err)
 	}
 	return nil
 }
 
 func (r *mysqlRepository[T]) Delete(ctx context.Context, m *T, tx *gorm.DB) error {
-	if err := tx.WithContext(ctx).Delete(m).Error; err != nil {
+	tr := otel.Tracer("delete-repository")
+	spanName := fmt.Sprintf("DeleteMainRepository<%T>", *new(T))
+	ctx, span := tr.Start(ctx, spanName)
+	defer span.End()
+
+	var err error
+	defer func(err error) {
+		if err != nil {
+			span.RecordError(err)
+		}
+	}(err)
+
+	err = tx.WithContext(ctx).Delete(m).Error
+	if err != nil {
 		return fmt.Errorf("delete failed: %w", err)
 	}
 	return nil

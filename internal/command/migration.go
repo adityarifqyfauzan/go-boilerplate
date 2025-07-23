@@ -42,6 +42,10 @@ var MigrateRefreshCommand = &cli.Command{
 	Name:  "migrate:refresh",
 	Usage: "Run migrations",
 	Action: func(c *cli.Context) error {
+		if !helper.ConfirmProductionAction() {
+			return nil
+		}
+
 		if err := Down(); err != nil {
 			return err
 		}
@@ -75,6 +79,10 @@ var MigrateDownToCommand = &cli.Command{
 	Name:  "migrate:down-to",
 	Usage: "Run migrations",
 	Action: func(c *cli.Context) error {
+		if !helper.ConfirmProductionAction() {
+			return nil
+		}
+
 		to := c.Args().Get(0)
 		toInt, err := strconv.Atoi(to)
 		if err != nil {
@@ -88,6 +96,10 @@ var MigrateUpToCommand = &cli.Command{
 	Name:  "migrate:up-to",
 	Usage: "Run migrations",
 	Action: func(c *cli.Context) error {
+		if !helper.ConfirmProductionAction() {
+			return nil
+		}
+
 		to := c.Args().Get(0)
 		toInt, err := strconv.Atoi(to)
 		if err != nil {
