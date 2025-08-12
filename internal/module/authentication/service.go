@@ -58,13 +58,6 @@ func (s *service) Login(ctx context.Context, request LoginRequest) *helper.ApiRe
 
 	translate := translator.NewTranslator(ctx.Value(translator.LOCALIZER).(*i18n.Localizer))
 
-	var err error
-	defer func(err error) {
-		if err != nil {
-			span.RecordError(err)
-		}
-	}(err)
-
 	// Find user by email
 	user, err := s.userRepo.FindOneBy(ctx, map[string]interface{}{"email": request.Email})
 	if err != nil {
