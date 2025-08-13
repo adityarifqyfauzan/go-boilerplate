@@ -46,10 +46,7 @@ A comprehensive Go web application boilerplate with modern architecture, depende
    go mod download
    ```
 3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
+   Create a `.env` file at the project root (there is no `.env.example`). See the Configuration section for required keys. At minimum set `APP_PORT`, database settings, `JWT_SECRET`, and `OTEL_EXPORTER_OTLP_ENDPOINT`.
 4. **Run with Docker (Recommended)**
    ```bash
    docker-compose up --build
@@ -58,10 +55,20 @@ A comprehensive Go web application boilerplate with modern architecture, depende
    ```
 5. **Run locally**
    ```bash
+   # Running RESTFul API
    go run main.go
-   # Or build and run
+   # Or build and run the RESTFul API
    go build -o main .
    ./main
+
+   # Running workers
+   go run main.go worker
+   # Or build and run the workers
+   go build -o main .
+   ./main worker
+
+   # Running specific worker
+   go run main.go worker worker-1 worker-2
    ```
 
 ---
@@ -74,7 +81,6 @@ go-boilerplate/
 ├── internal/               # Internal application code
 │   ├── bootstrap/          # Application bootstrap
 │   ├── command/            # CLI commands
-│   ├── container/          # Dependency injection containers
 │   ├── database/           # Database migrations and seeders
 │   │   ├── migrations/     # Database migration files
 │   │   └── seeders/        # Database seeder files
@@ -83,7 +89,8 @@ go-boilerplate/
 │   ├── module/             # Feature modules
 │   │   ├── authentication/ # Authentication module
 │   ├── repository/         # Data access layer
-│   └── routes/             # Route definitions
+│   ├── routes/             # Route definitions
+│   └── worker/             # Register your worker here
 ├── locales/                # Internationalization files
 ├── mysql/                  # MySQL-specific files
 ├── pkg/                    # Public packages
@@ -98,7 +105,7 @@ go-boilerplate/
 ├── go.mod                  # Go module definition
 ├── main.go                 # Application entry point
 ├── Makefile                # Build and development commands
-├── dbconfig.yml            # Database configuration
+├── dbconfig.yml            # Database configuration (deprecated/not used)
 └── prometheus.yml          # Prometheus configuration
 ```
 
@@ -110,6 +117,7 @@ go-boilerplate/
 ```bash
 docker-compose up
 ```
+- Ensure a `.env` file exists at the project root before building/running containers, as the Dockerfile copies it into the image.
 - Database available at:
   - Host: `mysql` (from app container) or `localhost:3306`
   - Database: `go_starter_kit`
@@ -304,7 +312,7 @@ userRoute.Use(middleware.AuthMiddleware(), middleware.RoleMiddleware("editor"))
 - **Prometheus Metrics:** `/metrics`
 - **Grafana Dashboard:** [http://localhost:3000](http://localhost:3000) (admin/admin)
 - **Prometheus:** [http://localhost:9090](http://localhost:9090)
-- **Jaeger Tracing:** If you set the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable, traces will be exported to Jaeger. you can access [http://localhost:16686/search](http://localhost:16686/search) to see the span.
+- **Jaeger Tracing:** Set `OTEL_EXPORTER_OTLP_ENDPOINT` to enable tracing. Use `jaeger:4318` when running via Docker Compose, or `localhost:4318` when running locally. View traces at [http://localhost:16686/search](http://localhost:16686/search).
 
 ---
 
@@ -323,6 +331,8 @@ docker-compose down
 docker-compose exec app go run main.go migrate:up
 # Run seeders in container
 docker-compose exec app go run main.go seeder
+# Start worker in container (example)
+docker-compose exec app go run main.go worker
 ```
 
 ---
@@ -349,11 +359,11 @@ GET /health
 
 ### Authentication
 ```bash
-POST /v1/authentication/login
-POST /v1/authentication/register
-POST /v1/authentication/forgot-password
-POST /v1/authentication/refresh-token
-GET /v1/authentication/me
+POST /api/v1/authentication/login
+POST /api/v1/authentication/register
+POST /api/v1/authentication/forgot-password
+POST /api/v1/authentication/refresh-token
+GET /api/v1/authentication/me
 ```
 
 ### Internationalization Example
@@ -371,6 +381,7 @@ Create a `.env` file with:
 APP_NAME=go-starter-kit
 APP_PORT=5001
 APP_ENV=development
+
 # Database
 DB_HOST=localhost
 DB_PORT=3306
@@ -378,18 +389,32 @@ DB_NAME=go_starter_kit
 DB_USER=myuser
 DB_PASS=mypass
 DB_DRIVER=mysql
+
 # JWT
 JWT_SECRET=your-secret-key
 JWT_EXPIRY=60
+
 # MongoDB (Optional)
 MONGO_HOST=localhost
 MONGO_PORT=27017
 MONGO_SECURITY=false
 MONGO_USER=
 MONGO_PASS=
+
 # OpenTelemetry
-OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4318
+OTEL_EXPORTER_OTLP_ENDPOINT=jaeger:4318
+
+# RabbitMQ
+RABBITMQ_HOST=rabbitmq
+RABBITMQ_PORT=5672
+RABBITMQ_USER=guest
+RABBITMQ_PASS=guest
+RABBITMQ_VHOST=
 ```
+
+Note:
+- If you use PostgreSQL (`DB_DRIVER=postgres`), define `DB_PASSWORD` instead of `DB_PASS`.
+- `OTEL_EXPORTER_OTLP_ENDPOINT` must be set; the app will fail early if it's missing.
 
 ---
 

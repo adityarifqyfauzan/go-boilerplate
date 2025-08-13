@@ -9,6 +9,7 @@ var (
 		Commands: []*cli.Command{
 			ModelCommand,
 			CreateModuleCommand,
+			CreateWorkerModuleCommand,
 			MigrateCreateCommand,
 			MigrateUpCommand,
 			MigrateStatusCommand,

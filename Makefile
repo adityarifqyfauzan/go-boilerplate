@@ -28,3 +28,9 @@ seeder-only:
 
 module-create:
 	go run main.go make:module $(name)
+
+worker-create:
+	go run main.go make:worker $(name)
+
+worker-run:
+	go run main.go worker

@@ -15,11 +15,27 @@ var CreateModuleCommand = &cli.Command{
 	Usage: "Create a new module",
 	Action: func(c *cli.Context) error {
 		name := c.Args().Get(0)
-		fmt.Println("🚀 Generate model:", name)
+		fmt.Println("🚀 Generate module:", name)
 
 		err := NewModuleGenerator(name).Generate()
 		if err != nil {
 			return fmt.Errorf("failed to generate module: %w", err)
+		}
+
+		return nil
+	},
+}
+
+var CreateWorkerModuleCommand = &cli.Command{
+	Name:  "make:worker",
+	Usage: "Create a new worker module",
+	Action: func(c *cli.Context) error {
+		name := c.Args().Get(0)
+		fmt.Println("🚀 Generate worker module:", name)
+
+		err := NewModuleGenerator(name).GenerateWorker()
+		if err != nil {
+			return fmt.Errorf("failed to generate worker module: %w", err)
 		}
 
 		return nil
@@ -34,6 +50,48 @@ func NewModuleGenerator(moduleName string) *ModuleGenerator {
 	return &ModuleGenerator{
 		ModuleName: strings.ToLower(moduleName),
 	}
+}
+
+func (g *ModuleGenerator) GenerateWorker() error {
+	modulePath := filepath.Join("internal", "module", g.ModuleName)
+
+	// check if module already exists
+	if _, err := os.Stat(modulePath); !os.IsNotExist(err) {
+		return fmt.Errorf("module already exists")
+	}
+
+	if err := os.MkdirAll(modulePath, 0755); err != nil {
+		return fmt.Errorf("failed to create module directory: %w", err)
+	}
+
+	files := map[string]string{
+		"model.go":            modelTemplate,
+		"dto.go":              workerDto,
+		"service.go":          workerService,
+		"worker.go":           worker,
+		"local_repository.go": repositoryTemplate,
+	}
+
+	for filename, content := range files {
+		filePath := filepath.Join(modulePath, filename)
+		tmpl, err := template.New(filename).Parse(content)
+		if err != nil {
+			return fmt.Errorf("failed to parse template for %s: %w", filename, err)
+		}
+
+		file, err := os.Create(filePath)
+		if err != nil {
+			return fmt.Errorf("failed to create file %s: %w", filename, err)
+		}
+		defer file.Close()
+
+		if err := tmpl.Execute(file, g); err != nil {
+			return fmt.Errorf("failed to execute template for %s: %w", filename, err)
+		}
+	}
+
+	fmt.Printf("Module '%s' generated successfully in %s\n", g.ModuleName, modulePath)
+	return nil
 }
 
 func (g *ModuleGenerator) Generate() error {
@@ -54,7 +112,6 @@ func (g *ModuleGenerator) Generate() error {
 		"handler.go":          handlerTemplate,
 		"service.go":          serviceTemplate,
 		"route.go":            routeTemplate,
-		"container.go":        containerTemplate,
 		"local_repository.go": repositoryTemplate,
 	}
 
@@ -165,21 +222,6 @@ func InitRoute(route *gin.RouterGroup, config *config.Config) {
 }
 `
 
-const containerTemplate = `package {{.ModuleName}}
-
-import "go.uber.org/dig"
-
-func InitContainer(container *dig.Container) {
-	if err := container.Provide(NewLocalRepository); err != nil {
-		panic(err)
-	}
-
-	if err := container.Provide(NewService); err != nil {
-		panic(err)
-	}
-}
-`
-
 const repositoryTemplate = `package {{.ModuleName}}
 
 import (
@@ -201,3 +243,95 @@ func NewLocalRepository(
 	}
 }
 `
+
+const worker = `package {{.ModuleName}}
+
+import (
+	"context"
+	"encoding/json"
+	"log"
+
+	"github.com/adityarifqyfauzan/go-boilerplate/config"
+	"github.com/adityarifqyfauzan/go-boilerplate/pkg/rabbitmq"
+	amqp "github.com/rabbitmq/amqp091-go"
+	"go.opentelemetry.io/otel"
+)
+
+func ExampleWorker() func(ctx context.Context, ch *amqp.Channel, conf *config.Config) {
+	return func(ctx context.Context, ch *amqp.Channel, conf *config.Config) {
+		service := NewService(
+			config.DB,
+			NewLocalRepository(config.DB),
+		)
+
+		message, err := rabbitmq.Consume(ch, &rabbitmq.PublishOption{
+			Topic: "example",
+		})
+		if err != nil {
+			panic(err)
+		}
+
+		log.Println("example worker started")
+
+		for msg := range message {
+			tr := otel.Tracer("example-worker")
+			ctx, span := tr.Start(ctx, "ExampleWorker")
+
+			log.Println("example worker received message")
+
+			var request ExampleRequest
+			if err := json.Unmarshal(msg.Body, &request); err != nil {
+				panic(err)
+			}
+
+			if err := service.Example(ctx, request.Name); err != nil {
+				log.Printf("failed to example: %v", err)
+			}
+
+			span.End()
+
+			log.Println("example worker processed message")
+		}
+	}
+}
+`
+
+const workerService = `package {{.ModuleName}}
+
+import (
+	"context"
+
+	"gorm.io/gorm"
+)
+
+type Service interface {
+	Example(ctx context.Context, name string) error
+}
+
+type service struct {
+	localRepository LocalRepository
+	db              *gorm.DB
+}
+
+func NewService(
+	db *gorm.DB,
+	localRepository LocalRepository,
+) Service {
+	return &service{
+		db:              db,
+		localRepository: localRepository,
+	}
+}
+
+func (s *service) Example(ctx context.Context, name string) error {
+	log.Println("Hello, ", name)
+	return nil
+}
+
+`
+
+const workerDto = `package {{.ModuleName}}
+
+type ExampleRequest struct {
+	Name string ` + "`" + `json:"name"` + "`" + `
+}`
