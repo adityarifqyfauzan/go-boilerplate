@@ -27,7 +27,6 @@ WORKDIR /app
 
 # Copy the binary and necessary files from builder
 COPY --from=builder /app/main .
-COPY --from=builder /app/.env .
 COPY --from=builder /app/locales ./locales
 COPY --from=builder /app/internal ./internal
 COPY --from=builder /app/config ./config
