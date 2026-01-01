@@ -128,7 +128,7 @@ func TestValidatorPasswordConfirmation(t *testing.T) {
 	}
 
 	errors := validator.Validate(data)
-	if errors["PasswordConfirmation"] != "PasswordConfirmation tidak cocok" {
-		t.Errorf("expected %s, got %s", "PasswordConfirmation tidak cocok", errors["PasswordConfirmation"])
+	if errors["PasswordConfirmation"] != "Konfirmasi Kata Sandi tidak cocok" {
+		t.Errorf("expected %s, got %s", "Konfirmasi Kata Sandi tidak cocok", errors["PasswordConfirmation"])
 	}
 }
